@@ -14,7 +14,94 @@ var url = 'https://github.com/yumu-webpack/yumu-template/archive/master.zip';
 
 module.exports = {
   url: url,
-  init: function(url, preName) {
+  pkg: pkg,
+  options: options,
+  init: init,
+  action: action
+}
+
+function action (option, version) {
+  switch(option) {
+    case 'version':
+      console.log(chalk.blue(version));
+      break;
+    case 'help':
+      outputHelpInfo();
+      break;
+    case 'template':
+      chooseTemplate();
+      break;
+    default:
+      return;
+  }
+}
+
+function outputHelpInfo() {
+  console.log(chalk.yellow('  Usage: init [option] <type>'));
+  console.log('');
+  console.log(chalk.yellow('  yumu init'));
+  console.log('');
+  console.log(chalk.yellow('  Options:'));
+  console.log('');
+  for( var i = 0; i < options.length; i ++ ) {
+    var str = '  ' + options[i][0] + ', ' + options[i][1] + addSpaceStr(24, options[i][1]) + options[i][2];
+    console.log(chalk.yellow(str));
+  }
+  console.log('');
+}
+
+function addSpaceStr(total, str) {
+  var spaceStr = '';
+  var len = total - str.length;
+  while(len){
+    spaceStr += ' ';
+    len --;
+  }
+  return spaceStr;
+}
+
+function chooseTemplate() {
+  inquirer.prompt([
+    {
+      type: 'list',
+      name: 'resource',
+      message: 'Please choose the template that you want to init',
+      choices: [
+        'mpa(Multiple page application)',
+        'spa(Single page application)'
+      ],
+      default: 'mpa(Multiple page application)'
+    }
+  ]).then(function(answers) {
+    var resource = /(.*)\(/.exec(answers.resource)[1];
+    url = 'https://github.com/yumu-webpack/yumu-template/blob/master/yumu-'+ resource +'-template.zip';
+    zipName = 'yumu-'+ resource +'-template';
+    init(url);
+  });
+}
+
+function init(url) {
+  inquirer.prompt([
+    {
+      type: 'input',
+      name: 'projectName',
+      default: 'react-demo',
+      message: 'your project name? '
+    }, {
+      type: 'input',
+      name: 'version',
+      default: 0.0.1,
+      message: 'your project version?'
+    }, {
+      type: 'input',
+      name: 'description',
+      message: 'your project description?'
+    }, {
+      type: 'confirm',
+      name: 'confirm',
+      message: 'Do you want to install the dependencies?',
+    }
+  ]).then(function(answers) {
     console.log(chalk.blue('you are downloading the remote files from "https://github.com/yumu-webpack/yumu-template"'));
     download(url, process.cwd()).then((data) => {
     	var unzipExtractor = unzip.Extract({ path: process.cwd() });

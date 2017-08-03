@@ -1,6 +1,6 @@
 {
   "name": "yumu-init",
-  "version": "0.0.8",
+  "version": "0.0.21",
   "description": "yumu init",
   "main": "index.js",
   "scripts": {
