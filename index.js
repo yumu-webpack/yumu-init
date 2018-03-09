@@ -9,8 +9,25 @@ var process = require('process');
 var child_process = require('child_process');
 var inquirer = require('inquirer');
 var chalk = require('chalk');
+var ora = require('ora');
+var pkg = require('./package.json');
 
-var url = 'https://github.com/yumu-webpack/yumu-template/archive/master.zip';
+var url = 'https://github.com/yumu-webpack/yumu-template/raw/master/yumu-mpa-template.zip';
+var zipName = 'yumu-mpa-template';
+var options = [
+  ['-V', '--version', 'The version of yumu-init'],
+  ['-h', '--help', 'The help of yumu-init'],
+  ['-t', '--template', 'The template of yumu-init']
+];
+
+var spinner = ora({
+  text: 'You are downloading the remote files from "https://github.com/yumu-webpack/yumu-template"',
+  spinner: 'circleQuarters'
+});
+var spinner2 = ora({
+  text: 'You are installing the dependencies',
+  spinner: 'circleQuarters'
+});
 
 module.exports = {
   url: url,
@@ -102,7 +119,8 @@ function init(url) {
       message: 'Do you want to install the dependencies?',
     }
   ]).then(function(answers) {
-    console.log(chalk.blue('you are downloading the remote files from "https://github.com/yumu-webpack/yumu-template"'));
+    spinner.start();
+
     download(url, process.cwd()).then((data) => {
     	var unzipExtractor = unzip.Extract({ path: process.cwd() });
     	unzipExtractor.on('error', function(err) {
@@ -117,7 +135,7 @@ function init(url) {
 }
 
 function handleFiles(answers) {
-  console.log(chalk.yellow('Download success！！'));
+  spinner.succeed();
   fs.exists(process.cwd() + '/' + zipName, function (exists) {
     var pkgPath = process.cwd() + '/' + zipName + '/package.json';
     var pkg = require(pkgPath);
@@ -135,10 +153,13 @@ function handleFiles(answers) {
       commends.forEach(function(item) {
         var getResult
         try {
+          spinner2.start();
           getResult = child_process.execSync(item, {
             encoding: 'utf8',
             cwd: process.cwd() + '/' + pkg.name
           });
+          console.log('');
+          spinner2.stop(true);
         } catch(err) {
           console.log(err.stderr);
         }
