@@ -159,7 +159,7 @@ function handleFiles(answers) {
             cwd: process.cwd() + '/' + pkg.name
           });
           console.log('');
-          spinner2.stop(true);
+          spinner2.succeed();
         } catch(err) {
           console.log(err.stderr);
         }
