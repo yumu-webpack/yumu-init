@@ -116,13 +116,34 @@ function init(url) {
   }
 }
 
-function handleFiles(preName) {
-  console.log(chalk.yellow('Load success'));
-  var pkgPath = process.cwd() + '/yumu-template-master/package.json';
-  fs.exists(process.cwd() + '/yumu-template-master', function (exists) {
-    var projectName = 'react-demo';
-    if(typeof(preName) != 'undefined') {
-      projectName = preName;
+function handleFiles(answers) {
+  console.log(chalk.yellow('Download success！！'));
+  fs.exists(process.cwd() + '/' + zipName, function (exists) {
+    var pkgPath = process.cwd() + '/' + zipName + '/package.json';
+    var pkg = require(pkgPath);
+    pkg.name = answers.projectName;
+    pkg.version = answers.version;
+    pkg.description = answers.description;
+    fs.unlinkSync(pkgPath);
+    fs.unlinkSync(zipName + '.zip');
+    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+    fs.renameSync(process.cwd() + '/' + zipName, process.cwd() + '/' + answers.projectName);
+    if(answers.confirm) {
+      var commends = [
+        'npm install'
+      ]
+      commends.forEach(function(item) {
+        var getResult
+        try {
+          getResult = child_process.execSync(item, {
+            encoding: 'utf8',
+            cwd: process.cwd() + '/' + pkg.name
+          });
+        } catch(err) {
+          console.log(err.stderr);
+        }
+        process.stdout.write(getResult);
+      });
     }
     var pkg = require(pkgPath);
     inquirer.prompt([
